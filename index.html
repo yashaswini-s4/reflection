@@ -6,10 +6,10 @@
 <title>Daily Reflection Tree — DT Fellowship</title>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-/* ── Reset ── */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Tokens ── */
+
 :root {
   --bg:        #0c0e0d;
   --surface:   #131613;
@@ -38,7 +38,7 @@ body {
   padding: 20px;
 }
 
-/* ambient glow */
+
 body::before {
   content: '';
   position: fixed;
@@ -48,13 +48,12 @@ body::before {
   pointer-events: none; z-index: 0;
 }
 
-/* ── Shell ── */
 .shell {
   width: 100%; max-width: 640px;
   position: relative; z-index: 1;
 }
 
-/* ── Header ── */
+
 header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 36px;
@@ -63,13 +62,13 @@ header {
 .logo { font-family: var(--font-head); font-size: 1.05rem; color: var(--accent); }
 .datestamp { font-size: .72rem; color: var(--muted); letter-spacing: .07em; text-transform: uppercase; }
 
-/* ── Progress ── */
+
 .progress-wrap { margin-bottom: 32px; animation: fadeUp .5s .08s ease both; }
 .progress-meta { display: flex; justify-content: space-between; font-size: .7rem; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; }
 .progress-bar { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width .55s cubic-bezier(.4,0,.2,1); width: 0%; }
 
-/* ── Card ── */
+
 .card {
   background: var(--card); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 44px 40px;
@@ -81,7 +80,7 @@ header {
   background: linear-gradient(90deg, transparent, rgba(121,179,135,.35), transparent);
 }
 
-/* ── Node content ── */
+
 .phase-label {
   font-size: .65rem; letter-spacing: .13em; text-transform: uppercase;
   color: var(--accent); opacity: .8; margin-bottom: 16px;
@@ -91,7 +90,7 @@ header {
   color: var(--text); font-weight: 400; margin-bottom: 32px;
 }
 
-/* ── Choice buttons ── */
+
 .choices { display: flex; flex-direction: column; gap: 11px; }
 .choice-btn {
   background: var(--surface); border: 1px solid var(--border);
@@ -111,7 +110,7 @@ header {
 }
 .choice-btn:hover .bullet { background: var(--accent); }
 
-/* ── Text input ── */
+
 .text-wrap { display: flex; flex-direction: column; gap: 13px; }
 textarea {
   background: var(--surface); border: 1px solid var(--border);
@@ -134,7 +133,7 @@ textarea:focus { border-color: var(--accent); }
 .continue-btn:hover { background: var(--accent2); transform: translateY(-1px); }
 .continue-btn:disabled { opacity: .3; cursor: default; transform: none; }
 
-/* ── Back ── */
+
 .back-btn {
   background: none; border: none; color: var(--muted);
   font-family: var(--font-body); font-size: .8rem;
@@ -144,13 +143,13 @@ textarea:focus { border-color: var(--accent); }
 }
 .back-btn:hover { color: var(--text); }
 
-/* ── End screen ── */
+
 .end-wrap { text-align: center; }
 .end-icon { font-size: 2.8rem; display: block; margin-bottom: 18px; }
 .end-title { font-family: var(--font-head); font-size: 1.7rem; color: var(--accent); margin-bottom: 10px; }
 .end-sub { color: var(--muted); font-size: .92rem; line-height: 1.8; margin-bottom: 32px; }
 
-/* ── Summary ── */
+
 .summary-box {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 13px; padding: 24px; text-align: left; margin-bottom: 22px;
@@ -171,15 +170,12 @@ textarea:focus { border-color: var(--accent); }
 }
 .restart-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* ── Decorative rings ── */
 .ring {
   position: fixed; border-radius: 50%; pointer-events: none;
   border: 1px solid rgba(121,179,135,.05);
 }
 .ring-1 { bottom: -100px; right: -100px; width: 440px; height: 440px; }
 .ring-2 { bottom: -60px;  right: -60px;  width: 320px; height: 320px; }
-
-/* ── Animations ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -220,21 +216,6 @@ textarea:focus { border-color: var(--accent); }
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-//  DAILY REFLECTION TREE
-//  DT Fellowship Assignment — Part B
-//
-//  Architecture:
-//  - Pure deterministic decision tree. Zero LLM at runtime.
-//  - Tree defined as a flat JS object (mirrors reflection-tree.tsv).
-//  - Navigation: choose() for buttons, submit() for text fields.
-//  - History stack enables full back-navigation with state restore.
-//  - Final screen renders a complete summary of all answers.
-// ═══════════════════════════════════════════════════════════
-
-// ── Tree Definition ────────────────────────────────────────
-// Each node: { phase, text, type:"choice"|"text"|"end", opts/ph/next }
-// This JS object is the authoritative source. The .tsv file is derived from it.
 
 const TREE = {
 
@@ -249,7 +230,7 @@ const TREE = {
     ]
   },
 
-  // ─── Branch: GREAT ───────────────────────────────────────
+  
   A1_HIGH: {
     phase: "What happened",
     text: "What made today feel great?",
@@ -282,7 +263,7 @@ const TREE = {
     next: "A3_AGENCY"
   },
 
-  // ─── Branch: OKAY ────────────────────────────────────────
+  
   A1_MID: {
     phase: "What happened",
     text: "What was the main texture of today?",
@@ -317,7 +298,7 @@ const TREE = {
     next: "A3_AGENCY"
   },
 
-  // ─── Branch: TOUGH ───────────────────────────────────────
+  
   A1_LOW: {
     phase: "What happened",
     text: "What made today tough?",
@@ -359,7 +340,7 @@ const TREE = {
     ]
   },
 
-  // ─── Axis 1: AGENCY (Locus of Control — Rotter, 1954) ───
+  
   A3_AGENCY: {
     phase: "Axis 1 — Agency",
     text: "How much agency did you feel today?",
@@ -392,7 +373,7 @@ const TREE = {
     next: "A5_RADIUS"
   },
 
-  // ─── Axis 2: RADIUS OF SELF-CENTRISM ────────────────────
+ 
   A5_RADIUS: {
     phase: "Axis 2 — Radius",
     text: "Who or what did your energy and attention extend to today?",
@@ -438,7 +419,7 @@ const TREE = {
     next: "A7_TOMORROW"
   },
 
-  // ─── Axes 3: ORIENTATION (Growth Mindset — Carol Dweck) ─
+ 
   A7_TOMORROW: {
     phase: "Axis 3 — Orientation",
     text: "What is one concrete thing you want to do differently tomorrow?",
@@ -457,7 +438,7 @@ const TREE = {
   SUMMARY: { type: "end" }
 };
 
-// ── Phase → step number map ─────────────────────────────────
+
 const PHASE_ORDER = [
   "Check-in",
   "What happened",
@@ -469,12 +450,11 @@ const PHASE_ORDER = [
 ];
 const TOTAL_PHASES = PHASE_ORDER.length;
 
-// ── State ───────────────────────────────────────────────────
 let cur     = "START";
-let history = [];       // [{id, answers_snapshot}]
-let answers = [];       // [{question, answer}]
+let history = [];       
+let answers = [];       
 
-// ── Helpers ─────────────────────────────────────────────────
+
 function now() {
   return new Date().toLocaleDateString("en-GB", {
     weekday: "long", day: "numeric", month: "long", year: "numeric"
@@ -500,7 +480,7 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
-// ── Render ──────────────────────────────────────────────────
+
 function render(id, animate = true) {
   cur = id;
   const node = TREE[id];
@@ -577,7 +557,7 @@ function buildEnd(area) {
     </div>`;
 }
 
-// ── Actions ─────────────────────────────────────────────────
+
 function choose(next, label, question) {
   history.push({ id: cur, snap: [...answers] });
   answers.push({ question, answer: label });
@@ -611,7 +591,7 @@ function restart() {
   render("START");
 }
 
-// ── Init ────────────────────────────────────────────────────
+
 document.getElementById("datestamp").textContent = now();
 render("START", false);
 </script>
