@@ -46,7 +46,7 @@ Total nodes: 25 | Unique paths: 36+ | Depth per session: 8–9 steps
 
 ### Stack
 
-- Vanilla HTML + CSS + JS (ES6)
+- Vanilla HTML + CSS + JS 
 - Google Fonts from CDN
 - Zero runtime dependencies
 
