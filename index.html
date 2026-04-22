@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Daily Reflection Tree — DT Fellowship</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Tokens ── */
+:root {
+  --bg:        #0c0e0d;
+  --surface:   #131613;
+  --card:      #191c1a;
+  --border:    #272d28;
+  --accent:    #79b387;
+  --accent2:   #b0c99b;
+  --text:      #e6ebe7;
+  --muted:     #758678;
+  --warm:      #c49a6a;
+  --radius:    18px;
+  --font-head: 'Lora', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 300;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* ambient glow */
+body::before {
+  content: '';
+  position: fixed;
+  top: -220px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(121,179,135,0.06) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── Shell ── */
+.shell {
+  width: 100%; max-width: 640px;
+  position: relative; z-index: 1;
+}
+
+/* ── Header ── */
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 36px;
+  animation: fadeUp .5s ease both;
+}
+.logo { font-family: var(--font-head); font-size: 1.05rem; color: var(--accent); }
+.datestamp { font-size: .72rem; color: var(--muted); letter-spacing: .07em; text-transform: uppercase; }
+
+/* ── Progress ── */
+.progress-wrap { margin-bottom: 32px; animation: fadeUp .5s .08s ease both; }
+.progress-meta { display: flex; justify-content: space-between; font-size: .7rem; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; }
+.progress-bar { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width .55s cubic-bezier(.4,0,.2,1); width: 0%; }
+
+/* ── Card ── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 44px 40px;
+  position: relative; overflow: hidden;
+  animation: fadeUp .5s .14s ease both;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(121,179,135,.35), transparent);
+}
+
+/* ── Node content ── */
+.phase-label {
+  font-size: .65rem; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--accent); opacity: .8; margin-bottom: 16px;
+}
+.question {
+  font-family: var(--font-head); font-size: 1.5rem; line-height: 1.5;
+  color: var(--text); font-weight: 400; margin-bottom: 32px;
+}
+
+/* ── Choice buttons ── */
+.choices { display: flex; flex-direction: column; gap: 11px; }
+.choice-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 11px; color: var(--text); font-family: var(--font-body);
+  font-size: .92rem; font-weight: 400;
+  padding: 15px 20px; text-align: left; cursor: pointer;
+  display: flex; align-items: center; gap: 14px;
+  transition: border-color .18s, background .18s, transform .18s;
+}
+.choice-btn:hover {
+  border-color: var(--accent); background: rgba(121,179,135,.07);
+  transform: translateX(5px);
+}
+.bullet {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--muted); flex-shrink: 0; transition: background .18s;
+}
+.choice-btn:hover .bullet { background: var(--accent); }
+
+/* ── Text input ── */
+.text-wrap { display: flex; flex-direction: column; gap: 13px; }
+textarea {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 11px; color: var(--text); font-family: var(--font-body);
+  font-size: .92rem; font-weight: 300; line-height: 1.75;
+  padding: 17px 19px; resize: none; min-height: 110px; outline: none;
+  transition: border-color .2s; width: 100%;
+}
+textarea::placeholder { color: var(--muted); }
+textarea:focus { border-color: var(--accent); }
+
+.continue-btn {
+  align-self: flex-end;
+  background: var(--accent); border: none; border-radius: 9px;
+  color: #0c0e0d; font-family: var(--font-body);
+  font-size: .87rem; font-weight: 500; letter-spacing: .04em;
+  padding: 12px 26px; cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.continue-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+.continue-btn:disabled { opacity: .3; cursor: default; transform: none; }
+
+/* ── Back ── */
+.back-btn {
+  background: none; border: none; color: var(--muted);
+  font-family: var(--font-body); font-size: .8rem;
+  cursor: pointer; margin-top: 22px; padding: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  transition: color .2s;
+}
+.back-btn:hover { color: var(--text); }
+
+/* ── End screen ── */
+.end-wrap { text-align: center; }
+.end-icon { font-size: 2.8rem; display: block; margin-bottom: 18px; }
+.end-title { font-family: var(--font-head); font-size: 1.7rem; color: var(--accent); margin-bottom: 10px; }
+.end-sub { color: var(--muted); font-size: .92rem; line-height: 1.8; margin-bottom: 32px; }
+
+/* ── Summary ── */
+.summary-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 13px; padding: 24px; text-align: left; margin-bottom: 22px;
+  max-height: 260px; overflow-y: auto;
+}
+.summary-box::-webkit-scrollbar { width: 4px; }
+.summary-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.summary-hd { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.summary-item { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.summary-item:last-child { border: none; margin: 0; padding: 0; }
+.summary-q { font-size: .74rem; color: var(--muted); font-style: italic; margin-bottom: 5px; }
+.summary-a { font-size: .9rem; color: var(--text); line-height: 1.55; }
+
+.restart-btn {
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 9px; color: var(--muted); font-family: var(--font-body);
+  font-size: .83rem; padding: 11px 22px; cursor: pointer; transition: all .2s;
+}
+.restart-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Decorative rings ── */
+.ring {
+  position: fixed; border-radius: 50%; pointer-events: none;
+  border: 1px solid rgba(121,179,135,.05);
+}
+.ring-1 { bottom: -100px; right: -100px; width: 440px; height: 440px; }
+.ring-2 { bottom: -60px;  right: -60px;  width: 320px; height: 320px; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.node-in  { animation: fadeUp .35s ease both; }
+.node-out { animation: nodeOut .22s ease both; }
+@keyframes nodeOut {
+  to { opacity: 0; transform: translateY(-10px); }
+}
+</style>
+</head>
+<body>
+
+<div class="ring ring-1"></div>
+<div class="ring ring-2"></div>
+
+<div class="shell">
+
+  <header>
+    <span class="logo">Daily Reflection Tree</span>
+    <span class="datestamp" id="datestamp"></span>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span>Reflection</span>
+      <span id="prog-label">Step 1 of 8</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="prog-fill"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="node-area" class="node-in"></div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  DAILY REFLECTION TREE
+//  DT Fellowship Assignment — Part B
+//
+//  Architecture:
+//  - Pure deterministic decision tree. Zero LLM at runtime.
+//  - Tree defined as a flat JS object (mirrors reflection-tree.tsv).
+//  - Navigation: choose() for buttons, submit() for text fields.
+//  - History stack enables full back-navigation with state restore.
+//  - Final screen renders a complete summary of all answers.
+// ═══════════════════════════════════════════════════════════
+
+// ── Tree Definition ────────────────────────────────────────
+// Each node: { phase, text, type:"choice"|"text"|"end", opts/ph/next }
+// This JS object is the authoritative source. The .tsv file is derived from it.
+
+const TREE = {
+
+  START: {
+    phase: "Check-in",
+    text: "How did today feel overall?",
+    type: "choice",
+    opts: [
+      { label: "Great — things went well",         next: "A1_HIGH" },
+      { label: "Okay — mixed bag",                  next: "A1_MID"  },
+      { label: "Tough — it was hard",               next: "A1_LOW"  },
+    ]
+  },
+
+  // ─── Branch: GREAT ───────────────────────────────────────
+  A1_HIGH: {
+    phase: "What happened",
+    text: "What made today feel great?",
+    type: "choice",
+    opts: [
+      { label: "I achieved something I set out to do",    next: "A2_ACHIEVE"  },
+      { label: "I helped someone in a meaningful way",    next: "A2_HELPED"   },
+      { label: "Something good just happened to me",      next: "A2_HAPPENED" },
+    ]
+  },
+  A2_ACHIEVE: {
+    phase: "Going deeper",
+    text: "What did you accomplish — be specific, not vague.",
+    type: "text",
+    ph:   "e.g. I finally finished the proposal that had been sitting on my desk for a week...",
+    next: "A3_AGENCY"
+  },
+  A2_HELPED: {
+    phase: "Going deeper",
+    text: "Who did you help, and what did that require of you?",
+    type: "text",
+    ph:   "e.g. I helped my teammate debug her code for two hours. It needed real patience...",
+    next: "A3_AGENCY"
+  },
+  A2_HAPPENED: {
+    phase: "Going deeper",
+    text: "What was it — and did you have any role in making it happen?",
+    type: "text",
+    ph:   "e.g. Got unexpected good feedback from my manager. I think I had been showing up differently...",
+    next: "A3_AGENCY"
+  },
+
+  // ─── Branch: OKAY ────────────────────────────────────────
+  A1_MID: {
+    phase: "What happened",
+    text: "What was the main texture of today?",
+    type: "choice",
+    opts: [
+      { label: "Steady and routine — I got through it",                  next: "A2_ROUTINE"   },
+      { label: "Uncertain — I didn't know where I stood",                next: "A2_UNCERTAIN" },
+      { label: "Tired but functional — just low energy overall",         next: "A2_TIRED"     },
+    ]
+  },
+  A2_ROUTINE: {
+    phase: "Going deeper",
+    text: "Was the routine grounding today — or numbing?",
+    type: "choice",
+    opts: [
+      { label: "Grounding — I needed the predictability",   next: "A3_AGENCY" },
+      { label: "Numbing — I was on autopilot most of it",   next: "A3_AGENCY" },
+    ]
+  },
+  A2_UNCERTAIN: {
+    phase: "Going deeper",
+    text: "What was the source of the uncertainty? Name it plainly.",
+    type: "text",
+    ph:   "e.g. I didn't know if the direction we chose was right. Still don't...",
+    next: "A3_AGENCY"
+  },
+  A2_TIRED: {
+    phase: "Going deeper",
+    text: "What drained you the most today? Be honest.",
+    type: "text",
+    ph:   "e.g. Six hours of back-to-back meetings with no time to actually think...",
+    next: "A3_AGENCY"
+  },
+
+  // ─── Branch: TOUGH ───────────────────────────────────────
+  A1_LOW: {
+    phase: "What happened",
+    text: "What made today tough?",
+    type: "choice",
+    opts: [
+      { label: "I was overwhelmed by tasks or decisions",            next: "A2_OVERWHELMED" },
+      { label: "There was a conflict — with someone or a situation", next: "A2_CONFLICT"    },
+      { label: "I had low energy or couldn't focus",                 next: "A2_ENERGY"      },
+    ]
+  },
+  A2_OVERWHELMED: {
+    phase: "Going deeper",
+    text: "What was the main source of overwhelm?",
+    type: "choice",
+    opts: [
+      { label: "Too many tasks — they kept stacking up",       next: "A3_AGENCY" },
+      { label: "Emotions ran too high and took over",          next: "A3_AGENCY" },
+      { label: "Too many decisions with no clear path",        next: "A3_AGENCY" },
+    ]
+  },
+  A2_CONFLICT: {
+    phase: "Going deeper",
+    text: "The conflict was with…?",
+    type: "choice",
+    opts: [
+      { label: "Another person — there was real friction",        next: "A3_AGENCY" },
+      { label: "A situation or system — things wouldn't cooperate", next: "A3_AGENCY" },
+      { label: "Myself — I was in my own way",                    next: "A3_AGENCY" },
+    ]
+  },
+  A2_ENERGY: {
+    phase: "Going deeper",
+    text: "Where did the low energy come from?",
+    type: "choice",
+    opts: [
+      { label: "Physical — sleep, body, or health",           next: "A3_AGENCY" },
+      { label: "Mental — too much to hold at once",           next: "A3_AGENCY" },
+      { label: "Emotional — something is weighing on me",     next: "A3_AGENCY" },
+    ]
+  },
+
+  // ─── Axis 1: AGENCY (Locus of Control — Rotter, 1954) ───
+  A3_AGENCY: {
+    phase: "Axis 1 — Agency",
+    text: "How much agency did you feel today?",
+    type: "choice",
+    opts: [
+      { label: "I drove the day — I made choices and acted on them",        next: "A4_HIGH" },
+      { label: "Roughly half and half — some mine, some not",               next: "A4_MID"  },
+      { label: "The day drove me — I was mostly reacting throughout",       next: "A4_LOW"  },
+    ]
+  },
+  A4_HIGH: {
+    phase: "Axis 1 — Agency",
+    text: "What choice or action are you most proud of today?",
+    type: "text",
+    ph:   "e.g. I pushed back on a scope change instead of just absorbing it silently...",
+    next: "A5_RADIUS"
+  },
+  A4_MID: {
+    phase: "Axis 1 — Agency",
+    text: "What's one moment where you wish you had acted differently?",
+    type: "text",
+    ph:   "e.g. I didn't speak up in the review when I should have. I knew the answer...",
+    next: "A5_RADIUS"
+  },
+  A4_LOW: {
+    phase: "Axis 1 — Agency",
+    text: "What would have needed to be different for you to feel more in control?",
+    type: "text",
+    ph:   "e.g. A clear priority list at the start of the day would have changed everything...",
+    next: "A5_RADIUS"
+  },
+
+  // ─── Axis 2: RADIUS OF SELF-CENTRISM ────────────────────
+  A5_RADIUS: {
+    phase: "Axis 2 — Radius",
+    text: "Who or what did your energy and attention extend to today?",
+    type: "choice",
+    opts: [
+      { label: "Mostly myself — internal day",                          next: "A6_SELF"  },
+      { label: "Family or close friends",                               next: "A6_CLOSE" },
+      { label: "Colleagues or my team",                                 next: "A6_WORK"  },
+      { label: "Community or something beyond my immediate circle",     next: "A6_BROAD" },
+    ]
+  },
+  A6_SELF: {
+    phase: "Axis 2 — Radius",
+    text: "Is focusing inward the right call for where you are — or do you want to expand?",
+    type: "choice",
+    opts: [
+      { label: "It's right — I genuinely needed to recharge",             next: "A7_TOMORROW" },
+      { label: "I'd like to give more to others going forward",            next: "A7_TOMORROW" },
+    ]
+  },
+  A6_CLOSE: {
+    phase: "Axis 2 — Radius",
+    text: "Was the energy you gave them what they actually needed — or just what was easy to give?",
+    type: "text",
+    ph:   "e.g. I gave advice when they probably needed someone to just listen...",
+    next: "A7_TOMORROW"
+  },
+  A6_WORK: {
+    phase: "Axis 2 — Radius",
+    text: "Did your interactions with colleagues feel meaningful or transactional today?",
+    type: "choice",
+    opts: [
+      { label: "Meaningful — real collaboration happened",   next: "A7_TOMORROW" },
+      { label: "Transactional — just getting things done",   next: "A7_TOMORROW" },
+      { label: "A mix of both",                               next: "A7_TOMORROW" },
+    ]
+  },
+  A6_BROAD: {
+    phase: "Axis 2 — Radius",
+    text: "What motivated you to extend your energy outward so broadly today?",
+    type: "text",
+    ph:   "e.g. I wanted to contribute to something that matters beyond my to-do list...",
+    next: "A7_TOMORROW"
+  },
+
+  // ─── Axes 3: ORIENTATION (Growth Mindset — Carol Dweck) ─
+  A7_TOMORROW: {
+    phase: "Axis 3 — Orientation",
+    text: "What is one concrete thing you want to do differently tomorrow?",
+    type: "text",
+    ph:   "e.g. Start the day with 20 quiet minutes before opening any messages...",
+    next: "A8_GRATITUDE"
+  },
+  A8_GRATITUDE: {
+    phase: "Closing",
+    text: "Name one thing — large or small — you are genuinely grateful for today.",
+    type: "text",
+    ph:   "e.g. The rain. A voice note from a friend. The fact that I kept going.",
+    next: "SUMMARY"
+  },
+
+  SUMMARY: { type: "end" }
+};
+
+// ── Phase → step number map ─────────────────────────────────
+const PHASE_ORDER = [
+  "Check-in",
+  "What happened",
+  "Going deeper",
+  "Axis 1 — Agency",
+  "Axis 2 — Radius",
+  "Axis 3 — Orientation",
+  "Closing"
+];
+const TOTAL_PHASES = PHASE_ORDER.length;
+
+// ── State ───────────────────────────────────────────────────
+let cur     = "START";
+let history = [];       // [{id, answers_snapshot}]
+let answers = [];       // [{question, answer}]
+
+// ── Helpers ─────────────────────────────────────────────────
+function now() {
+  return new Date().toLocaleDateString("en-GB", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric"
+  });
+}
+function progress(id) {
+  const n = TREE[id];
+  if (!n || n.type === "end") return 100;
+  const i = PHASE_ORDER.indexOf(n.phase);
+  return i < 0 ? 5 : Math.round(((i + 1) / TOTAL_PHASES) * 100);
+}
+function stepLabel(id) {
+  if (id === "SUMMARY") return "Complete";
+  const n = TREE[id];
+  if (!n) return "";
+  const i = PHASE_ORDER.indexOf(n.phase);
+  return i < 0 ? "" : `Phase ${i + 1} of ${TOTAL_PHASES}`;
+}
+function esc(s) {
+  return String(s)
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/"/g, "&quot;");
+}
+
+// ── Render ──────────────────────────────────────────────────
+function render(id, animate = true) {
+  cur = id;
+  const node = TREE[id];
+
+  document.getElementById("prog-fill").style.width  = progress(id) + "%";
+  document.getElementById("prog-label").textContent = stepLabel(id);
+
+  const area = document.getElementById("node-area");
+
+  function build() {
+    area.className = "node-in";
+    if (node.type === "end") { buildEnd(area); return; }
+
+    let h = `<div class="phase-label">${node.phase}</div>
+             <div class="question">${node.text}</div>`;
+
+    if (node.type === "choice") {
+      h += `<div class="choices">`;
+      node.opts.forEach(o => {
+        h += `<button class="choice-btn"
+                onclick="choose('${esc(o.next)}','${esc(o.label)}','${esc(node.text)}')">
+                <span class="bullet"></span>${o.label}
+              </button>`;
+      });
+      h += `</div>`;
+    } else {
+      h += `<div class="text-wrap">
+              <textarea id="ta" placeholder="${esc(node.ph)}" rows="4"
+                        oninput="toggleCont()"></textarea>
+              <button class="continue-btn" id="cont-btn" disabled
+                      onclick="submitText('${esc(node.next)}','${esc(node.text)}')">
+                Continue →
+              </button>
+            </div>`;
+    }
+
+    if (history.length > 0) {
+      h += `<button class="back-btn" onclick="goBack()">← Back</button>`;
+    }
+
+    area.innerHTML = h;
+    if (node.type === "text") setTimeout(() => document.getElementById("ta")?.focus(), 80);
+  }
+
+  if (animate) {
+    area.classList.add("node-out");
+    setTimeout(() => { area.className = ""; build(); }, 210);
+  } else {
+    build();
+  }
+}
+
+function buildEnd(area) {
+  const items = answers.map(a =>
+    `<div class="summary-item">
+       <div class="summary-q">${a.question}</div>
+       <div class="summary-a">${a.answer}</div>
+     </div>`
+  ).join("");
+
+  area.innerHTML = `
+    <div class="end-wrap">
+      <span class="end-icon">🌿</span>
+      <div class="end-title">Reflection complete.</div>
+      <div class="end-sub">
+        You showed up today — that's what matters.<br>
+        Rest well. Start tomorrow with intention.
+      </div>
+      <div class="summary-box">
+        <div class="summary-hd">Your reflection · ${now()}</div>
+        ${items}
+      </div>
+      <button class="restart-btn" onclick="restart()">Start a new reflection</button>
+    </div>`;
+}
+
+// ── Actions ─────────────────────────────────────────────────
+function choose(next, label, question) {
+  history.push({ id: cur, snap: [...answers] });
+  answers.push({ question, answer: label });
+  render(next);
+}
+
+function submitText(next, question) {
+  const val = document.getElementById("ta")?.value.trim();
+  if (!val) return;
+  history.push({ id: cur, snap: [...answers] });
+  answers.push({ question, answer: val });
+  render(next);
+}
+
+function toggleCont() {
+  const val = document.getElementById("ta")?.value.trim();
+  const btn = document.getElementById("cont-btn");
+  if (btn) btn.disabled = !val;
+}
+
+function goBack() {
+  if (!history.length) return;
+  const prev = history.pop();
+  answers = prev.snap;
+  render(prev.id);
+}
+
+function restart() {
+  history = [];
+  answers = [];
+  render("START");
+}
+
+// ── Init ────────────────────────────────────────────────────
+document.getElementById("datestamp").textContent = now();
+render("START", false);
+</script>
+</body>
+</html>

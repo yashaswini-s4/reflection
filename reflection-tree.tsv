@@ -1,0 +1,26 @@
+id	parentId	type	text	options	nextIds
+START	null	start	How did today feel overall?	Great — things went well|Okay — mixed bag|Tough — it was hard	A1_HIGH|A1_MID|A1_LOW
+A1_HIGH	START	question	What made today feel great?	I achieved something I set out to do|I helped someone in a meaningful way|Something good just happened to me	A2_ACHIEVE|A2_HELPED|A2_HAPPENED
+A1_MID	START	question	What was the main texture of today?	Steady and routine — I got through it|Uncertain — I didn't know where I stood|Tired but functional — low energy day	A2_ROUTINE|A2_UNCERTAIN|A2_TIRED
+A1_LOW	START	question	What made today tough?	I was overwhelmed by tasks or decisions|There was a conflict with someone or a situation|I had low energy or couldn't focus	A2_OVERWHELMED|A2_CONFLICT|A2_ENERGY
+A2_ACHIEVE	A1_HIGH	reflect	What did you accomplish — be specific, not vague.	[text]	A3_AGENCY
+A2_HELPED	A1_HIGH	reflect	Who did you help, and what did that require of you?	[text]	A3_AGENCY
+A2_HAPPENED	A1_HIGH	reflect	What was it, and did you have a role in making it happen?	[text]	A3_AGENCY
+A2_ROUTINE	A1_MID	question	Was the routine grounding or numbing today?	Grounding — I needed the stability|Numbing — I was on autopilot	A3_AGENCY|A3_AGENCY
+A2_UNCERTAIN	A1_MID	reflect	What was the source of the uncertainty? Name it plainly.	[text]	A3_AGENCY
+A2_TIRED	A1_MID	reflect	What drained you most today? Be honest.	[text]	A3_AGENCY
+A2_OVERWHELMED	A1_LOW	question	What was the main source of overwhelm?	Too many tasks stacked up|Emotions ran too high|Too many decisions with no clarity	A3_AGENCY|A3_AGENCY|A3_AGENCY
+A2_CONFLICT	A1_LOW	question	The conflict was with...?	Another person	A situation or system|Myself — I was in my own way	A3_AGENCY|A3_AGENCY|A3_AGENCY
+A2_ENERGY	A1_LOW	question	Where did the low energy come from?	Physical — sleep, body, health|Mental — too much to hold|Emotional — something is weighing on me	A3_AGENCY|A3_AGENCY|A3_AGENCY
+A3_AGENCY	A2_*	question	How much agency did you feel today?	I drove the day — I made choices and acted|Roughly half and half|The day drove me — I was reacting throughout	A4_HIGH|A4_MID|A4_LOW
+A4_HIGH	A3_AGENCY	reflect	What choice or action are you most proud of today?	[text]	A5_RADIUS
+A4_MID	A3_AGENCY	reflect	What's one moment where you wish you had acted differently?	[text]	A5_RADIUS
+A4_LOW	A3_AGENCY	reflect	What would have needed to be different for you to feel more in control?	[text]	A5_RADIUS
+A5_RADIUS	A4_*	question	Who or what did your energy and attention extend to today?	Mostly myself — internal day|Family or close friends|Colleagues or my team|Community or something beyond my immediate circle	A6_SELF|A6_CLOSE|A6_WORK|A6_BROAD
+A6_SELF	A5_RADIUS	question	Is focusing inward right for where you are — or do you want to expand your radius?	It's right — I needed to recharge|I'd like to give more to others going forward	A7_TOMORROW|A7_TOMORROW
+A6_CLOSE	A5_RADIUS	reflect	Was the energy you gave them what they actually needed — or what was easy to give?	[text]	A7_TOMORROW
+A6_WORK	A5_RADIUS	question	Did your interactions with colleagues feel meaningful or transactional today?	Meaningful — real collaboration happened|Transactional — just getting things done|A mix of both	A7_TOMORROW|A7_TOMORROW|A7_TOMORROW
+A6_BROAD	A5_RADIUS	reflect	What motivated you to extend your energy so far outward today?	[text]	A7_TOMORROW
+A7_TOMORROW	A6_*	reflect	What is one concrete thing you want to do differently tomorrow?	[text]	A8_GRATITUDE
+A8_GRATITUDE	A7_TOMORROW	reflect	Name one thing — large or small — you are genuinely grateful for today.	[text]	SUMMARY
+SUMMARY	A8_GRATITUDE	end	Reflection complete. You showed up today — that matters.	—	null
